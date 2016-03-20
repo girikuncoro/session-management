@@ -21,6 +21,7 @@ import org.json.JSONObject;
 public class SessionHandler extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	SessionTable sessionTable = new SessionTable();
+	private static final long CLEANUP_TIME = 1000 * 60 * 5; // cleanupDaemon starts every 5 mins
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -30,7 +31,8 @@ public class SessionHandler extends HttpServlet {
     }
 
     public void init() throws ServletException{
-    	
+    	// init for Servlet lifecycle
+    	cleanUpDaemon();
     }
     
 	/**
@@ -38,32 +40,25 @@ public class SessionHandler extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		SessionCookie cookie;
+		String message = "";
+		String expire = "";
 		String sessionID = getSessionID(request.getCookies());
 		String args = request.getParameter("param");
 		
-		System.out.println("new handler  ############");
-		System.out.println("session id main   " + sessionID);
-		System.out.println("args :: " + args);
-		System.out.println("~~~~~~~~~~~~~~~~~~~~~");
-		
+		// the first client request, it has no cookie
 		if(sessionID == null) {
-			// create new cookie if no session
 			cookie = sessionTable.createNewSession();
 			sessionID = cookie.getSessionID();
-			
-			System.out.println("session ID do not exist!");
 		} 
 		else {
 			cookie = sessionTable.getSessionCookie(sessionID);
-			
-			System.out.println("session ID exist!");
-			System.out.println("session cookie outside before" + cookie.getValue());
 			
 			if(args.equals("refresh") || args.equals("init")) {
 				sessionTable.refreshSession(sessionID);
 			} 
 			else if(args.equals("replace")) {
 				String newState = request.getParameter("msg");
+				if(newState == "") newState = sessionTable.getSessionState(sessionID);
 				cookie = sessionTable.updateSession(sessionID, newState);
 				
 			} 
@@ -71,18 +66,19 @@ public class SessionHandler extends HttpServlet {
 				cookie = sessionTable.invalidateSession(sessionID);
 				sessionID = null;
 			}
-		
-			
-			System.out.println("session cookie after" + cookie.getValue());
 		} 
 		
-		String message = sessionTable.getSessionState(sessionID);
 		String session = cookie.getValue();
 		String version = "" + cookie.getVersion();
 		String wqIdentifiers = cookie.getWqIdentifiers();
 		String cookieValue = session + "_" + version + "_" + wqIdentifiers;
 		String currTime = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss 'GMT'").format(Calendar.getInstance().getTime());
-		String expire = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss 'GMT'").format(sessionTable.getExpirationTS(sessionID));
+		
+		// if user is not logged out, populate the msg and expire time
+		if(sessionID != null) {
+			message = sessionTable.getSessionState(sessionID);
+			expire = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss 'GMT'").format(sessionTable.getExpirationTS(sessionID));
+		}
 		
 		response.setContentType("appilcation/json");
 		response.setCharacterEncoding("utf-8");
@@ -104,7 +100,6 @@ public class SessionHandler extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 	
@@ -122,10 +117,32 @@ public class SessionHandler extends HttpServlet {
 		return sessionID;
 	}
 	
-	public void destroy() {
-		
+	public void cleanUpDaemon() {
+		System.out.println("daemon starts");
+		Thread cleanUpThreadPool = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					sessionTable.cleanInvalidSession();
+					System.out.println("daemon running");
+					try {
+						System.out.println("daemon sleeping");
+						Thread.sleep(CLEANUP_TIME);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+			}
+		});
+		cleanUpThreadPool.setDaemon(true);
+		cleanUpThreadPool.start();
 	}
 	
+	public void destroy() {
+		// destroy for Servlet lifecycle
+	}
 }
 
 

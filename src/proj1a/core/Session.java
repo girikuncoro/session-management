@@ -12,18 +12,18 @@ public class Session {
 	private SessionCookie cookie;
 	private Date currTime;
 	private Date expirationTS;
-	private final int DEFAULT_AGE = 60;
+	private final int COOKIE_AGE = 300;
 
 	public Session() {
 		id = UUID.randomUUID().toString();
 		state = "Hello, User!";
-		version = "1";
+		version = "0";
 		wqIdentifiers = "0_0";
 		createCookie(id, version, wqIdentifiers);
 		
 		Calendar calendar = Calendar.getInstance();
 		currTime = calendar.getTime();
-		calendar.add(Calendar.SECOND, DEFAULT_AGE);
+		calendar.add(Calendar.SECOND, COOKIE_AGE);
 		expirationTS = calendar.getTime();
 		
 	}
@@ -33,7 +33,7 @@ public class Session {
 	}
 	
 	public void createCookie(String id, String version, String wqIdentifiers) {
-		cookie = new SessionCookie("CS5300PROJ1SESSION", id, version, 1, wqIdentifiers, DEFAULT_AGE); 
+		cookie = new SessionCookie("CS5300PROJ1SESSION", id, version, 0, wqIdentifiers, COOKIE_AGE); 
 	}
 	
 	private String getNewVersion() {
@@ -45,11 +45,11 @@ public class Session {
 	
 	public void refresh() {
 		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.SECOND, DEFAULT_AGE);
+		calendar.add(Calendar.SECOND, COOKIE_AGE);
 		expirationTS = calendar.getTime();
 		version = getNewVersion();
 		cookie.setVersion(cookie.getVersion() + 1);
-		cookie.setMaxAge(DEFAULT_AGE);
+		cookie.setMaxAge(COOKIE_AGE);
 	}
 
 	public String getId() {

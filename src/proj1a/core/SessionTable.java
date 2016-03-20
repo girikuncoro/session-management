@@ -1,18 +1,17 @@
 package proj1a.core;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionTable extends ConcurrentHashMap<String, Session>{
 	
 	private Session getSession (String sessionID) {
-		System.out.println("Session table sessionID :: " + sessionID);
 		Session session;
 		if (get(sessionID) != null) {
 			session = get(sessionID);
-			System.out.println("===not null");
 		} else {
-			System.out.println("new Session");
 			session = new Session();
 			put(session.getId(), session);
 		}
@@ -41,8 +40,6 @@ public class SessionTable extends ConcurrentHashMap<String, Session>{
 		session.updateState(newState);
 		session.refresh();
 		
-		System.out.println("update after " + session.getId());
-		
 		return session.getCookie();
 	}
 	
@@ -68,6 +65,16 @@ public class SessionTable extends ConcurrentHashMap<String, Session>{
 		SessionCookie cookie = session.getCookie();
 		remove(sessionID);
 		return cookie;
+	}
+	
+	public void cleanInvalidSession() {
+		Iterator<Entry<String, Session>> it = this.entrySet().iterator();
+		while(it.hasNext()) {
+			Entry<String, Session> entry = it.next();
+			if(entry.getValue().getExpirationTS().before(new Date())) {
+				it.remove();
+			}
+		}
 	}
 }
 

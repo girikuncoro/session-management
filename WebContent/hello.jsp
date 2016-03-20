@@ -4,25 +4,41 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Project1a</title>
+<title>Project1a - Giri Kuncoro</title>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<style>.btn:focus { outline: none !important; }</style>
 <script src="js/jquery-2.2.2.min.js"></script>
 </head>
 <body>
 
 <div class="container">
-	<div>
-		<p>NetId: gk256  Session: <span id="session"></span> Version: <span id="version"></span>   Date: <span id="date"></span>  </p>
-	</div>
-	<h1 id="user"></h1>
-	<div>
-		<input id="message" name="message" value="" type="text"/>
-		<input id="replace" class="request" name="replace" value="Replace" type="submit"/>
-		<input id="refresh" class="request" name="refresh" value="Refresh" type="submit"/>
-		<input id="logout" class="request" name="logout" value="Logout" type="submit"/>
-	</div>
-	<div>
-		<p>Cookie: <span id="cookie"></span>   Expires: <span id="expire"></span>  </p>
-	</div>
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-sm-6">
+        <ul class="list-group">
+          <li class="list-group-item active"><b>NetId:</b> gk256</li>
+          <li class="list-group-item"><b>Session:</b> <span id="session"></span></li>
+          <li class="list-group-item"><b>Version:</b> <span id="version"></span></li>
+          <li class="list-group-item"><b>Date:</b> <span id="date"></span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="jumbotron">
+      <h1 id="user"></h1>
+      <div>
+		<input id="message" class="form-control" style="margin-bottom: 10px;" name="message" value="" type="text" maxlength="500"/>
+		<input id="replace" class="btn btn-lg btn-primary request" name="replace" value="Replace" type="button"/>
+		<input id="refresh" class="btn btn-lg btn-primary request" name="refresh" value="Refresh" type="button"/>
+		<input id="logout" class="btn btn-lg btn-primary request" name="logout" value="Logout" type="button"/>
+	  </div>
+    </div>
+	<div class="row" style="margin-top: 10px;">
+      <div class="col-sm-6">
+        <ul class="list-group">
+          <li class="list-group-item"><b>Cookie:</b> <span id="cookie"></span></li>
+          <li class="list-group-item"><b>Expires:</b> <span id="expire"></span></li>
+        </ul>
+      </div>
+    </div>
 </div>
 
 <script>
