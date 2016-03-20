@@ -25,7 +25,7 @@
     <div class="jumbotron">
       <h1 id="user"></h1>
       <div>
-		<input id="message" class="form-control" style="margin-bottom: 10px;" name="message" value="" type="text" maxlength="500"/>
+		<input id="message" class="form-control" style="margin-bottom: 10px;" name="message" value="" type="text" maxlength="512"/>
 		<input id="replace" class="btn btn-lg btn-primary request" name="replace" value="Replace" type="button"/>
 		<input id="refresh" class="btn btn-lg btn-primary request" name="refresh" value="Refresh" type="button"/>
 		<input id="logout" class="btn btn-lg btn-primary request" name="logout" value="Logout" type="button"/>
