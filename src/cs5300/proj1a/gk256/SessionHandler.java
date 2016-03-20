@@ -1,10 +1,9 @@
-package proj1a.core;
+package cs5300.proj1a.gk256;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -30,8 +29,10 @@ public class SessionHandler extends HttpServlet {
         super();
     }
 
+    /**
+     * Initializing servlet by cleaning up daemon
+     */
     public void init() throws ServletException{
-    	// init for Servlet lifecycle
     	cleanUpDaemon();
     }
     
@@ -50,6 +51,7 @@ public class SessionHandler extends HttpServlet {
 			cookie = sessionTable.createNewSession();
 			sessionID = cookie.getSessionID();
 		} 
+		// client already has cookie, process the refresh, replace, and logout operation
 		else {
 			cookie = sessionTable.getSessionCookie(sessionID);
 			
@@ -58,6 +60,8 @@ public class SessionHandler extends HttpServlet {
 			} 
 			else if(args.equals("replace")) {
 				String newState = request.getParameter("msg");
+				
+				// ignore state if empty
 				if(newState == "") newState = sessionTable.getSessionState(sessionID);
 				cookie = sessionTable.updateSession(sessionID, newState);
 				
@@ -80,6 +84,7 @@ public class SessionHandler extends HttpServlet {
 			expire = new SimpleDateFormat("EEE, dd MMM YYYY HH:mm:ss 'GMT'").format(sessionTable.getExpirationTS(sessionID));
 		}
 		
+		// response back to client as JSON response
 		response.setContentType("appilcation/json");
 		response.setCharacterEncoding("utf-8");
 		response.addCookie(cookie);
@@ -100,9 +105,15 @@ public class SessionHandler extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// sampe handling with get request
 		doGet(request, response);
 	}
 	
+	/**
+	 * Getting sessionID from client's cookie, null if not exist
+	 * @param list of cookies from client
+	 * @return sessionID
+	 */
 	private String getSessionID(Cookie[] cookies) {
 		String sessionID = null;
 		if (cookies != null) {
@@ -117,6 +128,9 @@ public class SessionHandler extends HttpServlet {
 		return sessionID;
 	}
 	
+	/**
+	 * Starting cleanUpDaemon as background process to cleanup invalidate session in sessionTable
+	 */
 	public void cleanUpDaemon() {
 		System.out.println("daemon starts");
 		Thread cleanUpThreadPool = new Thread(new Runnable() {
@@ -140,9 +154,10 @@ public class SessionHandler extends HttpServlet {
 		cleanUpThreadPool.start();
 	}
 	
-	public void destroy() {
-		// destroy for Servlet lifecycle
-	}
+	/**
+	 * Destroy the servlet lifecycle, ignore for this assignment
+	 */
+	public void destroy() { }
 }
 
 

@@ -11,7 +11,7 @@
          
          <servlet>
          	<servlet-name>Project1a</servlet-name>
-         	<servlet-class>proj1a.core.SessionHandler</servlet-class>
+         	<servlet-class>cs5300.proj1a.gk256.SessionHandler</servlet-class>
          </servlet>
          
          <welcome-file-list>
